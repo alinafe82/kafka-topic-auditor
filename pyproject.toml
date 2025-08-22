@@ -1,0 +1,7 @@
+[project]
+name = "kafka-topic-auditor"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = ["pydantic>=2.7", "rich>=13.7"]
+[tool.pytest.ini_options]
+addopts = "-q"
