@@ -1,6 +1,9 @@
-import json, click
+import json
+
+import click
 from rich.console import Console
 from rich.table import Table
+
 from .client import KafkaClient
 from .report import generate_report
 
@@ -8,8 +11,8 @@ console = Console()
 
 @click.command()
 @click.option("--stale-days", default=28, show_default=True)
-@click.option("--format", "fmt", type=click.Choice(["table","json"]), default="table")
-def main(stale_days: int, fmt: str):
+@click.option("--format", "fmt", type=click.Choice(["table", "json"]), default="table")
+def main(stale_days: int, fmt: str) -> None:
     client = KafkaClient()
     rep = generate_report(client, stale_days=stale_days)
     if fmt == "json":
