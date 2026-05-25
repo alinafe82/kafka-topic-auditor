@@ -4,6 +4,7 @@ Audit Kafka topics for cleanup candidates.
 The goal is to make topic hygiene reviewable before anyone deletes infrastructure. The CLI
 flags topics that are empty, stale based on recent consumption, or ignored because they are
 Kafka/internal platform topics.
+JSON output includes per-topic findings with the reason each topic was flagged.
 
 The current client is a local mock. A production version would replace `KafkaClient` with a
 real adapter for Kafka Admin APIs and consumer group offsets.

@@ -15,14 +15,14 @@ The intended user is a platform engineer or service owner preparing a topic clea
 
 - `KafkaClient`: adapter boundary for topic names, offsets, and last-consumption timestamps.
 - `generate_report`: classifies topics as empty, stale, or ignored internal topics.
-- `TopicReport`: structured output for CLI and future automation.
+- `TopicReport`: structured output with per-topic findings for CLI and future automation.
 - CLI: renders the report as JSON or a terminal table.
 
 ## Data Flow
 
 The CLI creates a client, `generate_report` reads topic metadata, internal topics are filtered
 out, offsets identify empty topics, and last-consumption timestamps identify stale topics.
-The output is a report, not an action.
+The output is a report with reasons, not an action.
 
 ## Design Choices
 
