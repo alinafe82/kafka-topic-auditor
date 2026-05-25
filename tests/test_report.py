@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from click.testing import CliRunner
@@ -13,10 +13,11 @@ def test_generate_report():
     assert "dead-letter" in rep.empty_topics
     assert "payments" in rep.stale_topics
     assert "__consumer_offsets" in rep.ignored_internal
+    assert any(f.topic == "payments" and f.category == "stale" for f in rep.findings)
 
 
 def test_generate_report_uses_single_audit_time():
-    now = datetime(2026, 1, 30, 12, 0, 0)
+    now = datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC)
 
     class BoundaryClient(KafkaClient):
         def list_topics(self):
@@ -55,6 +56,38 @@ def test_generate_report_skips_internal_topics_without_offset_lookup():
 def test_generate_report_rejects_invalid_stale_days():
     with pytest.raises(ValueError, match="stale_days"):
         generate_report(KafkaClient(), stale_days=0)
+
+
+def test_generate_report_rejects_naive_audit_time():
+    with pytest.raises(ValueError, match="timezone-aware"):
+        generate_report(KafkaClient(), now=datetime(2026, 1, 30, 12, 0, 0))
+
+
+def test_generate_report_rejects_invalid_offsets():
+    class BadOffsetClient(KafkaClient):
+        def list_topics(self):
+            return ["orders"]
+
+        def get_offsets(self, topic):
+            return (10, 5)
+
+    with pytest.raises(ValueError, match="invalid offsets"):
+        generate_report(BadOffsetClient())
+
+
+def test_generate_report_rejects_naive_last_consumption_time():
+    class NaiveTimestampClient(KafkaClient):
+        def list_topics(self):
+            return ["orders"]
+
+        def last_consume_at(self, topic):
+            return datetime(2026, 1, 1, 12, 0, 0)
+
+    with pytest.raises(ValueError, match="timezone-aware"):
+        generate_report(
+            NaiveTimestampClient(),
+            now=datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC),
+        )
 
 
 def test_cli_emits_json_report():
