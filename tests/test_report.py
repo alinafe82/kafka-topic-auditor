@@ -1,5 +1,9 @@
 from datetime import datetime, timedelta
 
+import pytest
+from click.testing import CliRunner
+
+from auditor.cli import main
 from auditor.client import KafkaClient
 from auditor.report import generate_report
 
@@ -28,3 +32,36 @@ def test_generate_report_uses_single_audit_time():
 
     assert rep.stale_topics == ["boundary"]
     assert rep.generated_at == now.isoformat()
+
+
+def test_generate_report_skips_internal_topics_without_offset_lookup():
+    class InternalOnlyClient(KafkaClient):
+        def list_topics(self):
+            return ["__consumer_offsets"]
+
+        def get_offsets(self, topic):
+            raise AssertionError("internal topics should not be inspected")
+
+        def last_consume_at(self, topic):
+            raise AssertionError("internal topics should not be inspected")
+
+    rep = generate_report(InternalOnlyClient())
+
+    assert rep.ignored_internal == ["__consumer_offsets"]
+    assert rep.empty_topics == []
+    assert rep.stale_topics == []
+
+
+def test_generate_report_rejects_invalid_stale_days():
+    with pytest.raises(ValueError, match="stale_days"):
+        generate_report(KafkaClient(), stale_days=0)
+
+
+def test_cli_emits_json_report():
+    runner = CliRunner()
+
+    result = runner.invoke(main, ["--format", "json"])
+
+    assert result.exit_code == 0
+    assert '"empty_topics"' in result.output
+    assert '"stale_topics"' in result.output

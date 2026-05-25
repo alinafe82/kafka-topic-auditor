@@ -9,8 +9,9 @@ from .report import generate_report
 
 console = Console()
 
+
 @click.command()
-@click.option("--stale-days", default=28, show_default=True)
+@click.option("--stale-days", default=28, type=click.IntRange(1), show_default=True)
 @click.option("--format", "fmt", type=click.Choice(["table", "json"]), default="table")
 def main(stale_days: int, fmt: str) -> None:
     client = KafkaClient()
@@ -30,6 +31,7 @@ def main(stale_days: int, fmt: str) -> None:
             rep.ignored_internal[i] if i < len(rep.ignored_internal) else "",
         )
     console.print(table)
+
 
 if __name__ == "__main__":
     main()

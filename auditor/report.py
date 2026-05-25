@@ -10,6 +10,9 @@ def generate_report(
     stale_days: int = 28,
     now: Optional[datetime] = None,
 ) -> TopicReport:
+    if stale_days < 1:
+        raise ValueError("stale_days must be at least 1")
+
     topics = client.list_topics()
     audit_time = now or datetime.now(UTC)
     empty, stale, internal = [], [], []
