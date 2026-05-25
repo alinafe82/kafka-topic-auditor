@@ -33,6 +33,8 @@ uv run --extra dev ruff check .
 - `auditor.cli` turns the report into JSON or a terminal table.
 
 See [docs/architecture.md](docs/architecture.md) for design details.
+See [docs/runbook.md](docs/runbook.md), [docs/security-notes.md](docs/security-notes.md),
+and [docs/production-readiness.md](docs/production-readiness.md) for operational notes.
 
 ## Limitations
 

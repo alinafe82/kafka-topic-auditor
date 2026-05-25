@@ -23,6 +23,13 @@ to run locally but means production use needs a real adapter and stronger owners
 - Added deterministic timing support to report generation.
 - Added a license, architecture notes, ADR, and interview notes.
 
+## Fixes Made During Productionization
+
+- Fixed the missing Click dependency so the documented CLI works from a fresh install.
+- Added tests for internal-topic skips, invalid stale thresholds, and JSON CLI output.
+- Added production-readiness, security, runbook, and core design ADR docs.
+- Updated CI to run ruff as well as tests.
+
 ## Likely Questions
 
 **Why not delete topics automatically?**
