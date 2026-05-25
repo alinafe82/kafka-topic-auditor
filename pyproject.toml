@@ -7,7 +7,7 @@ dependencies = ["click>=8.1", "pydantic>=2.7", "rich>=15.0.0"]
 [project.optional-dependencies]
 dev = [
     "pytest>=8.3",
-    "ruff>=0.6",
+    "ruff>=0.15.14",
 ]
 
 [tool.pytest.ini_options]
