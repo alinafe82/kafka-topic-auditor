@@ -98,3 +98,29 @@ def test_cli_emits_json_report():
     assert result.exit_code == 0
     assert '"empty_topics"' in result.output
     assert '"stale_topics"' in result.output
+
+
+def test_library_exposes_no_delete_shaped_method():
+    """The auditor produces review evidence. Adding a delete-shaped method
+    would change the contract and is intentionally blocked at test time."""
+    import auditor.client
+    import auditor.report
+
+    forbidden = ("delete", "remove", "drop", "purge", "destroy")
+    for module in (auditor.client, auditor.report):
+        for name in dir(module):
+            if name.startswith("_"):
+                continue
+            lower = name.lower()
+            assert not any(token in lower for token in forbidden), (
+                f"{module.__name__}.{name} looks like a delete API. "
+                f"This tool produces audit evidence, not destructive actions."
+            )
+
+    for name in dir(auditor.client.KafkaClient):
+        if name.startswith("_"):
+            continue
+        lower = name.lower()
+        assert not any(token in lower for token in forbidden), (
+            f"KafkaClient.{name} looks like a delete API."
+        )
