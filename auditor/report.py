@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from typing import Optional
 
 from .client import KafkaClient
 from .models import TopicFinding, TopicReport
@@ -8,7 +7,7 @@ from .models import TopicFinding, TopicReport
 def generate_report(
     client: KafkaClient,
     stale_days: int = 28,
-    now: Optional[datetime] = None,
+    now: datetime | None = None,
 ) -> TopicReport:
     if stale_days < 1:
         raise ValueError("stale_days must be at least 1")
