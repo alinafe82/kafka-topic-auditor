@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from click.testing import CliRunner
@@ -17,7 +17,7 @@ def test_generate_report():
 
 
 def test_generate_report_uses_single_audit_time():
-    now = datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC)
+    now = datetime(2026, 1, 30, 12, 0, 0, tzinfo=timezone.utc)
 
     class BoundaryClient(KafkaClient):
         def list_topics(self):
@@ -95,12 +95,12 @@ def test_generate_report_rejects_naive_last_consumption_time():
     with pytest.raises(ValueError, match="timezone-aware"):
         generate_report(
             NaiveTimestampClient(),
-            now=datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC),
+            now=datetime(2026, 1, 30, 12, 0, 0, tzinfo=timezone.utc),
         )
 
 
 def test_generate_report_rejects_future_consumption_time():
-    now = datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC)
+    now = datetime(2026, 1, 30, 12, 0, 0, tzinfo=timezone.utc)
 
     class FutureTimestampClient(KafkaClient):
         def list_topics(self):

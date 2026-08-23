@@ -1,7 +1,8 @@
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Mockable interface. Replace with real Kafka admin and consumer-group wiring.
 INTERNAL_PREFIXES = ("__consumer_offsets", "_schema", "_confluent", "__transaction_state")
+
 
 class KafkaClient:
     def list_topics(self) -> list[str]:
@@ -16,5 +17,5 @@ class KafkaClient:
 
     def last_consume_at(self, topic: str) -> datetime:
         if topic == "payments":
-            return datetime.now(UTC) - timedelta(days=40)
-        return datetime.now(UTC) - timedelta(days=1)
+            return datetime.now(timezone.utc) - timedelta(days=40)
+        return datetime.now(timezone.utc) - timedelta(days=1)
