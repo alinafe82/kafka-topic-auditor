@@ -1,5 +1,5 @@
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 
 from .client import KafkaClient
 from .models import TopicFinding, TopicReport
@@ -17,7 +17,7 @@ def generate_report(
     duplicate_topics = sorted(topic for topic, count in Counter(topics).items() if count > 1)
     if duplicate_topics:
         raise ValueError(f"duplicate topic names: {', '.join(duplicate_topics)}")
-    audit_time = now or datetime.now(UTC)
+    audit_time = now or datetime.now(timezone.utc)
     if audit_time.tzinfo is None:
         raise ValueError("now must be timezone-aware")
 
