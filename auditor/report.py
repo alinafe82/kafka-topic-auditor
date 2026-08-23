@@ -1,3 +1,4 @@
+from collections import Counter
 from datetime import UTC, datetime
 
 from .client import KafkaClient
@@ -13,6 +14,9 @@ def generate_report(
         raise ValueError("stale_days must be at least 1")
 
     topics = client.list_topics()
+    duplicate_topics = sorted(topic for topic, count in Counter(topics).items() if count > 1)
+    if duplicate_topics:
+        raise ValueError(f"duplicate topic names: {', '.join(duplicate_topics)}")
     audit_time = now or datetime.now(UTC)
     if audit_time.tzinfo is None:
         raise ValueError("now must be timezone-aware")
@@ -45,6 +49,8 @@ def generate_report(
         last = client.last_consume_at(t)
         if last.tzinfo is None:
             raise ValueError(f"last consumption timestamp for {t} must be timezone-aware")
+        if last > audit_time:
+            raise ValueError(f"last consumption timestamp for {t} is a future timestamp")
         age_days = (audit_time - last).days
         if age_days >= stale_days:
             stale.append(t)

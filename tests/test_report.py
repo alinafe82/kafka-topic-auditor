@@ -75,6 +75,15 @@ def test_generate_report_rejects_invalid_offsets():
         generate_report(BadOffsetClient())
 
 
+def test_generate_report_rejects_duplicate_topic_names():
+    class DuplicateClient(KafkaClient):
+        def list_topics(self):
+            return ["orders", "orders"]
+
+    with pytest.raises(ValueError, match="duplicate topic names: orders"):
+        generate_report(DuplicateClient())
+
+
 def test_generate_report_rejects_naive_last_consumption_time():
     class NaiveTimestampClient(KafkaClient):
         def list_topics(self):
@@ -88,6 +97,20 @@ def test_generate_report_rejects_naive_last_consumption_time():
             NaiveTimestampClient(),
             now=datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC),
         )
+
+
+def test_generate_report_rejects_future_consumption_time():
+    now = datetime(2026, 1, 30, 12, 0, 0, tzinfo=UTC)
+
+    class FutureTimestampClient(KafkaClient):
+        def list_topics(self):
+            return ["orders"]
+
+        def last_consume_at(self, topic):
+            return now + timedelta(minutes=1)
+
+    with pytest.raises(ValueError, match="future timestamp"):
+        generate_report(FutureTimestampClient(), now=now)
 
 
 def test_cli_emits_json_report():
