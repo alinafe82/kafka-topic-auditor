@@ -3,6 +3,7 @@ from datetime import UTC, datetime, timedelta
 # Mockable interface. Replace with real Kafka admin and consumer-group wiring.
 INTERNAL_PREFIXES = ("__consumer_offsets", "_schema", "_confluent", "__transaction_state")
 
+
 class KafkaClient:
     def list_topics(self) -> list[str]:
         return ["orders", "payments", "dead-letter", "__consumer_offsets"]
